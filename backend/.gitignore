@@ -1,0 +1,45 @@
+# Virtual Environment
+venv/
+.env/
+
+# Database
+*.sqlite3
+*.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Bytecode and cache
+*.py[cod]
+__pycache__/
+*.so
+.Python
+
+# Logs and dev artifacts
+*.log
+*.pot
+*.pyc
+*.pyo
+logs/
+media/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Local development
+instance/
+.webassets-cache
+
+# Django secret key
+secret_key.txt
+
+# Static files collected during deployment
+staticfiles/

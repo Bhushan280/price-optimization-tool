@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+venv/
+
+# Node.js
+node_modules/
+dist/
+build/
+.cache/
+.env
+
+# IDE
+.vscode/
+.idea/
