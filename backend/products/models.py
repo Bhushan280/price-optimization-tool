@@ -30,9 +30,13 @@ class Product(models.Model):
     category = models.CharField(max_length=100)
     stock_available = models.IntegerField()
     units_sold = models.IntegerField()
-    customer_rating = models.FloatField()
-    demand_forecast = models.IntegerField()
-    optimized_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
+    customer_rating = models.FloatField(null=True, blank=True, default=0.0)
+    demand_forecast = models.IntegerField(default=0)
+    optimized_price = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True
+    )
     def __str__(self):
         return self.name
