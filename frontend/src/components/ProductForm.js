@@ -43,14 +43,14 @@ const ProductForm = ({ open, handleClose, product, onSubmit }) => {
   return (
     <div className={`fixed inset-0 bg-black/50 ${open ? 'block' : 'hidden'}`}>
       <div className='flex items-center justify-center min-h-screen'>
-        <div className='bg-white rounded-xl p-6 w-full max-w-2xl'>
-          <h2 className='text-2xl font-bold mb-4'>
+        <div className='flex bg-white rounded-xl p-6 w-full max-w-2xl'>
+          <h2 className='m-4 p-4 flex text-2xl font-bold mb-4'>
             {product ? 'Edit Product' : 'New Product'}
           </h2>
 
           <form onSubmit={handleSubmit} className='space-y-4'>
             <div>
-              <label className='block text-sm font-medium mb-1'>
+              <label className=' block text-sm font-medium mb-1'>
                 Product Name
               </label>
               <input
@@ -114,7 +114,34 @@ const ProductForm = ({ open, handleClose, product, onSubmit }) => {
                 className='input-field h-32'
               />
             </div>
-
+            <div className='grid grid-cols-2 gap-4'>
+              <div>
+                <label className='block text-sm font-medium mb-1'>
+                  Stock Available
+                </label>
+                <input
+                  type='number'
+                  name='stock_available'
+                  value={formData.stock_available}
+                  onChange={handleChange}
+                  className='input-field'
+                  min='0'
+                />
+              </div>
+              <div>
+                <label className='block text-sm font-medium mb-1'>
+                  Units Sold
+                </label>
+                <input
+                  type='number'
+                  name='units_sold'
+                  value={formData.units_sold}
+                  onChange={handleChange}
+                  className='input-field'
+                  min='0'
+                />
+              </div>
+            </div>
             <div className='flex justify-end gap-3 mt-6'>
               <button
                 type='button'
@@ -133,6 +160,5 @@ const ProductForm = ({ open, handleClose, product, onSubmit }) => {
     </div>
   );
 };
-
 
 export default ProductForm;
