@@ -116,7 +116,7 @@ export default function PricingOptimization() {
       {forecast && (
         <div className='bg-white p-6 rounded-lg shadow'>
           <Line
-            key={chartKey} // 2️⃣ force remount for new canvas
+            key={chartKey} 
             data={forecast}
             options={{
               responsive: true,
@@ -126,7 +126,6 @@ export default function PricingOptimization() {
               },
               scales: {
                 x: {
-                  // now a registered CategoryScale
                   title: { display: true, text: 'Price' },
                 },
                 y: {

@@ -12,7 +12,6 @@ const Layout = ({ children }) => {
 
   return (
     <div className='min-h-screen flex'>
-      {/* Sidebar */}
       <div className='w-64 bg-white border-r p-4'>
         <h2 className='text-xl font-bold mb-6'>Price Optimization</h2>
         <nav className='space-y-2'>
@@ -31,7 +30,6 @@ const Layout = ({ children }) => {
         </nav>
       </div>
 
-      {/* Main Content */}
       <div className='flex-1'>
         <header className='bg-white shadow-sm'>
           <div className='flex items-center justify-between px-6 py-4'>

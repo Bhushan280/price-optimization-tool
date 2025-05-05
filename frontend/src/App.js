@@ -1,7 +1,4 @@
-// In App.js, change this import:
 import PricingOptimization from './pages/PricingOptimization';
-
-// From your code, it should look like:
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProductList from './pages/ProductList';

@@ -52,22 +52,6 @@ const ProductList = () => {
     setProducts(newList);
   };
 
-  // const handleSubmit = async (formData) => {
-  //   try {
-  //     if (formData.id) {
-  //       await api.put(`/products/api/products/${formData.id}/`, formData);
-  //     } else {
-  //       await api.post('/products/api/products/create/', formData);
-  //     }
-  //     // Force refresh from server
-  //     const { data } = await api.get('/products/api/products/');
-  //     setProducts(data);
-  //   } catch (error) {
-  //     console.error('Error saving product:', error);
-  //   }
-  //   setOpenForm(false);
-  // };
-
   return (
     <div className='space-y-6'>
       <div className='flex justify-between items-center'>
