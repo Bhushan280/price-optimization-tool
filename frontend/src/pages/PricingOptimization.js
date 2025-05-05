@@ -1,106 +1,115 @@
-// src/pages/PricingOptimization.js
-import React, { useState, useEffect } from 'react';
+// src/pages/PricingOptimization.jsx
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import api from '../api';
-// …chart.js imports…
+import {
+  Chart as ChartJS,
+  CategoryScale, // <— register this
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// 1️⃣ Make sure CategoryScale (for string labels) is registered:
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function PricingOptimization() {
   const [products, setProducts] = useState([]);
-  const [chartData, setChartData] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [forecast, setForecast] = useState(null);
+
+  // key for <Line> so React fully remounts chart on each new data
+  const [chartKey, setChartKey] = useState(0);
 
   useEffect(() => {
-    fetchProducts();
+    api.get('/products/api/products/').then((r) => {
+      setProducts(r.data);
+    });
   }, []);
 
-  async function fetchProducts() {
-    try {
-      const { data } = await api.get('/products/api/products/');
-      setProducts(data);
-    } catch {
-      /* handle */
-    }
-  }
+  const runOpt = async () => {
+    await api.post('/products/api/optimize-prices/');
+    const { data } = await api.get('/products/api/products/');
+    setProducts(data);
+  };
 
-  async function optimizePrices() {
-    try {
-      await api.post('/products/api/optimize-prices/');
-      fetchProducts();
-    } catch {
-      alert('Price optimization failed!');
-    }
-  }
-
-  async function fetchDemandForecast(id) {
+  const showForecast = async (id) => {
     const { data } = await api.get(`/products/api/demand-forecast/${id}/`);
-    setChartData({
+
+    // Build chart data with string labels (needs CategoryScale)
+    const chartData = {
       labels: data.prices.map((p) => `$${p.toFixed(2)}`),
-      datasets: [{ label: 'Demand', data: data.demand, tension: 0.1 }],
-    });
-    setSelectedProduct(products.find((p) => p.id === id));
-  }
+      datasets: [
+        {
+          label: 'Demand',
+          data: data.demand,
+          tension: 0.3,
+        },
+      ],
+    };
+
+    setForecast(chartData);
+    // bump key to force unmount/remount and avoid “canvas in use”
+    setChartKey((k) => k + 1);
+  };
 
   return (
-    <div className='bg-gray-100 min-h-screen p-8'>
-      {/* Header */}
-      <div className='flex items-center justify-between mb-8'>
-        <h1 className='text-4xl font-extrabold text-gray-900'>
-          Pricing Optimization
-        </h1>
+    <div className='space-y-6'>
+      <div className='flex justify-between items-center'>
+        <h2 className='text-3xl font-bold'>Pricing Optimization</h2>
         <button
-          onClick={optimizePrices}
-          className='bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow'
+          onClick={runOpt}
+          className='px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700'
         >
           Run Price Optimization
         </button>
       </div>
 
-      {/* Table Card */}
-      <div className='bg-white rounded-2xl shadow-lg overflow-x-auto'>
-        <table className='w-full table-auto'>
+      <div className='overflow-x-auto bg-white shadow rounded-lg'>
+        <table className='min-w-full divide-y divide-gray-200'>
           <thead className='bg-gray-50'>
             <tr>
               {[
                 'Product',
                 'Category',
-                'Cost Price',
-                'Current Price',
-                'Optimized Price',
-                'View Forecast',
+                'Cost',
+                'Current',
+                'Optimized',
+                'Forecast',
               ].map((h) => (
                 <th
                   key={h}
-                  className='px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase'
+                  className='px-6 py-3 text-left text-sm font-medium text-gray-500'
                 >
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className='divide-y divide-gray-200'>
+          <tbody className='bg-white divide-y divide-gray-200'>
             {products.map((p) => (
-              <tr key={p.id} className='hover:bg-gray-50'>
-                <td className='px-6 py-4 whitespace-nowrap text-gray-700'>
-                  {p.name}
-                </td>
-                <td className='px-6 py-4 whitespace-nowrap text-gray-700'>
-                  {p.category}
-                </td>
-                <td className='px-6 py-4 whitespace-nowrap text-gray-700'>
-                  ${p.cost_price}
-                </td>
-                <td className='px-6 py-4 whitespace-nowrap text-gray-700'>
-                  ${p.selling_price}
-                </td>
-                <td className='px-6 py-4 whitespace-nowrap text-gray-700'>
-                  {p.optimized_price ? `$${p.optimized_price}` : '-'}
-                </td>
-                <td className='px-6 py-4 whitespace-nowrap'>
+              <tr key={p.id}>
+                <td className='px-6 py-4'>{p.name}</td>
+                <td className='px-6 py-4'>{p.category}</td>
+                <td className='px-6 py-4'>${p.cost_price}</td>
+                <td className='px-6 py-4'>${p.selling_price}</td>
+                <td className='px-6 py-4'>${p.optimized_price ?? '-'}</td>
+                <td className='px-6 py-4'>
                   <button
-                    onClick={() => fetchDemandForecast(p.id)}
-                    className='text-indigo-600 hover:text-indigo-800 font-medium'
+                    onClick={() => showForecast(p.id)}
+                    className='text-indigo-600 hover:underline'
                   >
-                    Show Forecast
+                    Show
                   </button>
                 </td>
               </tr>
@@ -109,39 +118,28 @@ export default function PricingOptimization() {
         </table>
       </div>
 
-      {/* Forecast Modal */}
-      {chartData && selectedProduct && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4'>
-          <div className='bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl'>
-            <div className='flex justify-between items-center mb-4'>
-              <h2 className='text-2xl font-bold text-gray-900'>
-                Demand Forecast for {selectedProduct.name}
-              </h2>
-              <button
-                onClick={() => setChartData(null)}
-                className='text-gray-500 hover:text-gray-700'
-              >
-                ✕
-              </button>
-            </div>
-            <div className='h-96'>
-              <Line
-                data={chartData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Demand vs Price' },
-                  },
-                  scales: {
-                    x: { title: { display: true, text: 'Price' } },
-                    y: { title: { display: true, text: 'Demand' } },
-                  },
-                }}
-              />
-            </div>
-          </div>
+      {forecast && (
+        <div className='bg-white p-6 rounded-lg shadow'>
+          <Line
+            key={chartKey} // 2️⃣ force remount for new canvas
+            data={forecast}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Demand vs Price' },
+              },
+              scales: {
+                x: {
+                  // now a registered CategoryScale
+                  title: { display: true, text: 'Price' },
+                },
+                y: {
+                  title: { display: true, text: 'Demand' },
+                },
+              },
+            }}
+          />
         </div>
       )}
     </div>
