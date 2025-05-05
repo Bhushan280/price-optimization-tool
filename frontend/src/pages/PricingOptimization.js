@@ -1,10 +1,9 @@
-// src/pages/PricingOptimization.jsx
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import api from '../api';
 import {
   Chart as ChartJS,
-  CategoryScale, // <— register this
+  CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
@@ -13,7 +12,6 @@ import {
   Legend,
 } from 'chart.js';
 
-// 1️⃣ Make sure CategoryScale (for string labels) is registered:
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -28,7 +26,6 @@ export default function PricingOptimization() {
   const [products, setProducts] = useState([]);
   const [forecast, setForecast] = useState(null);
 
-  // key for <Line> so React fully remounts chart on each new data
   const [chartKey, setChartKey] = useState(0);
 
   useEffect(() => {
@@ -46,7 +43,6 @@ export default function PricingOptimization() {
   const showForecast = async (id) => {
     const { data } = await api.get(`/products/api/demand-forecast/${id}/`);
 
-    // Build chart data with string labels (needs CategoryScale)
     const chartData = {
       labels: data.prices.map((p) => `$${p.toFixed(2)}`),
       datasets: [
@@ -59,7 +55,6 @@ export default function PricingOptimization() {
     };
 
     setForecast(chartData);
-    // bump key to force unmount/remount and avoid “canvas in use”
     setChartKey((k) => k + 1);
   };
 
