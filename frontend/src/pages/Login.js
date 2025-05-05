@@ -29,14 +29,14 @@ const Login = () => {
         <h2 className='text-3xl font-bold text-center'>Login</h2>
         <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
           <div>
-            <label className='block text-sm font-medium text-gray-700'>
+            <label className='flex text-sm font-medium text-gray-700 '>
               Email
             </label>
             <input
               type='email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className='mt-1 block w-full px-3 py-2 border rounded-md'
+              className='mt-1 block w-full px-2 py-2 border rounded-md'
               required
             />
           </div>
@@ -48,13 +48,13 @@ const Login = () => {
               type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className='mt-1 block w-full px-3 py-2 border rounded-md'
+              className='mt-1 block w-full px-2 py-2 border rounded-md'
               required
             />
           </div>
           <button
             type='submit'
-            className='w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700'
+            className='w-full py-4 size-50 bg-blue-600 text-white rounded-md hover:bg-blue-700'
           >
             Sign In
           </button>

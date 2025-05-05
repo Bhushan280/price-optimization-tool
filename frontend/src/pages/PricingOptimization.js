@@ -114,9 +114,9 @@ export default function PricingOptimization() {
       </div>
 
       {forecast && (
-        <div className='bg-white p-6 rounded-lg shadow'>
+        <div className='bg-white p-6 rounded-lg shadow bg-blend-overlay'>
           <Line
-            key={chartKey} 
+            key={chartKey}
             data={forecast}
             options={{
               responsive: true,
