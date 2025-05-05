@@ -156,10 +156,17 @@ class PriceOptimizationAPI(APIView):
     def post(self, request):
         products = Product.objects.all()
         for p in products:
-            p.optimized_price = max(
-                p.cost_price * 1.20,
-                p.selling_price * 0.95
-            )
+            # Convert the DecimalFields to floats
+            cost = float(p.cost_price)
+            sell = float(p.selling_price)
+
+            # Compute the two candidate optimized prices
+            opt1 = cost * 1.20   # at least 20% margin
+            opt2 = sell * 0.95   # at most a 5% discount
+
+            # Pick the higher
+            p.optimized_price = opt1 if opt1 > opt2 else opt2
             p.save()
+
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
