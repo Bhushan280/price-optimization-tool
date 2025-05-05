@@ -5,3 +5,14 @@
 /* AG Grid styles */
 @import 'ag-grid-community/styles/ag-grid.css';
 @import 'ag-grid-community/styles/ag-theme-alpine.css';
+
+.ag-theme-alpine-dark {
+  --ag-background-color: theme('colors.gray.800');
+  --ag-foreground-color: theme('colors.white');
+  --ag-header-background-color: theme('colors.gray.900');
+}
+
+.dark-row {
+  background-color: theme('colors.gray.800');
+  color: theme('colors.white');
+}

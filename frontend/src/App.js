@@ -1,20 +1,23 @@
-import PricingOptimization from './pages/PricingOptimization';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { DarkModeProvider } from './context/DarkModeContext';
 import Layout from './components/Layout';
 import ProductList from './pages/ProductList';
+import PricingOptimization from './pages/PricingOptimization';
 import Login from './pages/Login';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
+    <DarkModeProvider>
+      <BrowserRouter>
         <Routes>
-          <Route path='/' element={<ProductList />} />
           <Route path='/login' element={<Login />} />
-          <Route path='/pricing' element={<PricingOptimization />} />
+          <Route element={<Layout />}>
+            <Route path='/' element={<ProductList />} />
+            <Route path='/pricing' element={<PricingOptimization />} />
+          </Route>
         </Routes>
-      </Layout>
-    </BrowserRouter>
+      </BrowserRouter>
+    </DarkModeProvider>
   );
 }
 

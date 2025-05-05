@@ -1,38 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ProductGrid from '../components/ProductGrid';
 import ProductForm from '../components/ProductForm';
 import api from '../api';
 
-
 const ProductList = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: 'Gio - Note Pad',
-      category: 'Stationary',
-      cost_price: 1.2,
-      selling_price: 2.7,
-      description: 'Lorem ipsum dolor sit amet...',
-      stock_available: 1212123,
-      units_sold: 131244,
-    },
-  ]);
-
-  const handleCreate = () => {
-    setSelectedProduct(null);
-    setOpenForm(true);
-  };
-
-  const handleEdit = (product) => {
-    setSelectedProduct(product);
-    setOpenForm(true);
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchProducts = async () => {
     try {
@@ -40,25 +15,31 @@ const ProductList = () => {
       setProducts(data);
     } catch (err) {
       console.error('Error fetching products:', err);
-      if (err.response?.status === 401) window.location = '/login';
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = (id) => {
-    setProducts(products.filter((p) => p.id !== id));
-  };
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-  const handleSubmit = async (newList) => {
-    setProducts(newList);
+  const handleDelete = (id) => {
+    setProducts(products.filter((product) => product.id !== id));
   };
 
   return (
     <div className='space-y-6'>
       <div className='flex justify-between items-center'>
-        <h1 className='text-3xl font-bold'>Product Management</h1>
+        <h1 className='text-3xl font-bold dark:text-white'>
+          Product Management
+        </h1>
         <button
-          onClick={handleCreate}
-          className='btn-primary flex items-center gap-2'
+          onClick={() => {
+            setSelectedProduct(null);
+            setOpenForm(true);
+          }}
+          className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2'
         >
           <svg
             className='w-5 h-5'
@@ -77,17 +58,27 @@ const ProductList = () => {
         </button>
       </div>
 
-      <ProductGrid
-        products={products}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      {loading ? (
+        <div className='text-center py-8 dark:text-white'>
+          Loading products...
+        </div>
+      ) : products.length > 0 ? (
+        <ProductGrid
+          products={products}
+          onEdit={setSelectedProduct}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <div className='text-center py-8 dark:text-white'>
+          No products found
+        </div>
+      )}
 
       <ProductForm
         open={openForm}
         handleClose={() => setOpenForm(false)}
         product={selectedProduct}
-        onSubmit={handleSubmit}
+        onSubmit={fetchProducts} // Changed to directly use fetchProducts
       />
     </div>
   );
