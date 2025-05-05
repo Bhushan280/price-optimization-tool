@@ -1,7 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Layout = ({ children }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
   return (
     <div className='min-h-screen flex'>
       {/* Sidebar */}
@@ -27,8 +35,11 @@ const Layout = ({ children }) => {
       <div className='flex-1'>
         <header className='bg-white shadow-sm'>
           <div className='flex items-center justify-between px-6 py-4'>
-            <h1 className='text-xl font-semibold'>Welcome, Amish Singh</h1>
-            <button className='text-gray-600 hover:text-gray-800'>
+            <h1 className='text-xl font-semibold'>Welcome, Bhushan Chouhan</h1>
+            <button
+              onClick={handleLogout}
+              className='text-gray-600 hover:text-gray-800'
+            >
               Logout
             </button>
           </div>

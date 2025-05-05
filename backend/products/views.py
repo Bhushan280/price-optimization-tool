@@ -15,7 +15,54 @@ from sklearn.linear_model import LinearRegression
 from rest_framework import generics
 from .models import Product
 from .serializers import ProductSerializer
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from .serializers import UserSerializer
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from .serializers import UserSerializer
 
+
+from rest_framework.permissions import IsAuthenticated
+
+class ProductListAPI(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+class UserRegistrationAPI(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'user': serializer.data,
+                'token': token.key
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserLoginAPI(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user = authenticate(username=username, password=password)
+        if user:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'role': user.role
+                }
+            })
+        return Response({'error': 'Invalid Credentials'}, status=status.HTTP_40)
 
 class DemandForecastAPI(APIView):
     def get(self, request, product_id):
@@ -54,6 +101,7 @@ class PriceOptimizationAPI(APIView):
 
 
 class ProductListView(ListView):
+    
     model = Product
     template_name = 'products/product_list.html'
     context_object_name = 'products'
@@ -102,3 +150,10 @@ class ProductCreateAPI(generics.CreateAPIView):
 class ProductUpdateAPI(generics.RetrieveUpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+
+
+class UserRegistrationAPI(APIView):
+    permission_classes = [permissions.AllowAny]
+
+class UserLoginAPI(APIView):
+    permission_classes = [permissions.AllowAny]

@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import axios from 'axios';
+import api from '../api'; 
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -43,13 +44,21 @@ const PricingOptimization = () => {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    const response = await axios.get(
-      'http://localhost:8000/products/api/products/'
-    );
-    setProducts(response.data);
-  };
+  // const fetchProducts = async () => {
+  //   const response = await axios.get(
+  //     'http://localhost:8000/products/api/products/'
+  //   );
+  //   setProducts(response.data);
+  // };
     
+  const fetchProducts = async () => {
+    try {
+      const response = await api.get('/products/api/products/');
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
 
   const fetchDemandForecast = async (productId) => {
     const response = await axios.get(
@@ -68,8 +77,12 @@ const PricingOptimization = () => {
     });
   };
 
+  // const optimizePrices = async () => {
+  //   await axios.post('http://localhost:8000/api/products/optimize-prices/');
+  //   fetchProducts();
+  // };
   const optimizePrices = async () => {
-    await axios.post('http://localhost:8000/api/products/optimize-prices/');
+    await api.post('/products/api/optimize-prices/');
     fetchProducts();
   };
 
