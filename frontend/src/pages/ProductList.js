@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductGrid from '../components/ProductGrid';
 import ProductForm from '../components/ProductForm';
-import axios from 'axios';
+import api from '../api';
+
 
 const ProductList = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [products, setProducts] = useState([
-    // Sample data - replace with API data
     {
       id: 1,
       name: 'Gio - Note Pad',
@@ -20,7 +20,6 @@ const ProductList = () => {
     },
   ]);
 
-  // Keep existing handlers for create/edit/delete
   const handleCreate = () => {
     setSelectedProduct(null);
     setOpenForm(true);
@@ -31,34 +30,43 @@ const ProductList = () => {
     setOpenForm(true);
   };
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data } = await api.get('/products/api/products/');
+      setProducts(data);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      if (err.response?.status === 401) window.location = '/login';
+    }
+  };
+
   const handleDelete = (id) => {
     setProducts(products.filter((p) => p.id !== id));
   };
 
-  const handleSubmit = async (formData) => {
-    try {
-      if (formData.id) {
-        // Update existing product
-        await axios.put(
-          `http://localhost:8000/products/api/products/${formData.id}/`,
-          formData
-        );
-      } else {
-        // Create new product
-        await axios.post(
-          'http://localhost:8000/products/api/products/create/',
-          formData
-        );
-      }
-      const updatedProducts = await axios.get(
-        'http://localhost:8000/products/api/products/'
-      );
-      setProducts(updatedProducts.data);
-    } catch (error) {
-      console.error('Error saving product:', error);
-    }
-    setOpenForm(false);
+  const handleSubmit = async (newList) => {
+    setProducts(newList);
   };
+
+  // const handleSubmit = async (formData) => {
+  //   try {
+  //     if (formData.id) {
+  //       await api.put(`/products/api/products/${formData.id}/`, formData);
+  //     } else {
+  //       await api.post('/products/api/products/create/', formData);
+  //     }
+  //     // Force refresh from server
+  //     const { data } = await api.get('/products/api/products/');
+  //     setProducts(data);
+  //   } catch (error) {
+  //     console.error('Error saving product:', error);
+  //   }
+  //   setOpenForm(false);
+  // };
 
   return (
     <div className='space-y-6'>

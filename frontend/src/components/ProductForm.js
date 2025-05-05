@@ -1,5 +1,5 @@
-import axios from 'axios';
 import React from 'react';
+import api from '../api';
 
 const ProductForm = ({ open, handleClose, product, onSubmit }) => {
   const [formData, setFormData] = React.useState({
@@ -21,16 +21,20 @@ const ProductForm = ({ open, handleClose, product, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        'http://localhost:8000/products/api/products/create/',
-        formData
-      );
-      onSubmit(response.data);
+      if (formData.id) {
+        await api.put(`/products/api/products/${formData.id}/`, formData);
+      } else {
+        await api.post('/products/api/products/create/', formData);
+      }
+      const { data } = await api.get('/products/api/products/');
+      onSubmit(data);
       handleClose();
-    } catch (error) {
-      console.error('Error creating product:', error);
+    } catch (err) {
+      console.error('Error saving product:', err);
+      alert('Save failed: ' + err.response?.data || err.message);
     }
   };
+
 
   const handleChange = (e) => {
     setFormData({

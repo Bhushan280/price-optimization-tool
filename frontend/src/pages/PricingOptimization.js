@@ -1,19 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Container,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-} from '@mui/material';
 import { Line } from 'react-chartjs-2';
-import axios from 'axios';
-import api from '../api'; 
+import api from '../api';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -44,128 +31,117 @@ const PricingOptimization = () => {
     fetchProducts();
   }, []);
 
-  // const fetchProducts = async () => {
-  //   const response = await axios.get(
-  //     'http://localhost:8000/products/api/products/'
-  //   );
-  //   setProducts(response.data);
-  // };
-    
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/products/api/products/');
-      setProducts(response.data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
+      const { data } = await api.get('/products/api/products/');
+      setProducts(data);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      if (err.response?.status === 401) window.location = '/login';
     }
   };
 
-  const fetchDemandForecast = async (productId) => {
-    const response = await axios.get(
-      `http://localhost:8000/products/api/demand-forecast/${productId}/`
-    );
-    setChartData({
-      labels: response.data.prices.map((p) => `$${p.toFixed(2)}`),
-      datasets: [
-        {
-          label: 'Demand Forecast',
-          data: response.data.demand,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1,
-        },
-      ],
-    });
+  const optimizePrices = async () => {
+    try {
+      await api.post('/products/api/optimize-prices/');
+      fetchProducts();
+    } catch (err) {
+      console.error('Optimization failed:', err);
+      alert('Price optimization failed!');
+    }
   };
 
-  // const optimizePrices = async () => {
-  //   await axios.post('http://localhost:8000/api/products/optimize-prices/');
-  //   fetchProducts();
-  // };
-  const optimizePrices = async () => {
-    await api.post('/products/api/optimize-prices/');
-    fetchProducts();
+  const fetchDemandForecast = async (id) => {
+    try {
+      const { data } = await api.get(`/products/api/demand-forecast/${id}/`);
+      setChartData({
+        labels: data.prices.map((p) => `$${p.toFixed(2)}`),
+        datasets: [{ label: 'Demand', data: data.demand, tension: 0.1 }],
+      });
+      setSelectedProduct(products.find((p) => p.id === id));
+    } catch (err) {
+      console.error('Error fetching forecast:', err);
+    }
   };
 
   return (
-    <Container maxWidth='lg'>
-      <Typography variant='h4' gutterBottom sx={{ mt: 3 }}>
-        Pricing Optimization
-      </Typography>
-
-      <Button variant='contained' onClick={optimizePrices} sx={{ mb: 3 }}>
+    <div className='container mx-auto px-4 py-8'>
+      <h1 className='text-3xl font-bold mb-6'>Pricing Optimization</h1>
+      <button
+        onClick={optimizePrices}
+        className='mb-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700'
+      >
         Run Price Optimization
-      </Button>
+      </button>
 
-      <TableContainer component={Paper} sx={{ mb: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Product</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Cost Price</TableCell>
-              <TableCell>Current Price</TableCell>
-              <TableCell>Optimized Price</TableCell>
-              <TableCell>Demand Forecast</TableCell>
-              <TableCell>View Forecast</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {products.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell>{product.name}</TableCell>
-                <TableCell>{product.category}</TableCell>
-                <TableCell>${product.cost_price}</TableCell>
-                <TableCell>${product.selling_price}</TableCell>
-                <TableCell>${product.optimized_price || '-'}</TableCell>
-                <TableCell>{product.demand_forecast}</TableCell>
-                <TableCell>
-                  <Button
-                    variant='outlined'
-                    onClick={() => {
-                      setSelectedProduct(product);
-                      fetchDemandForecast(product.id);
-                    }}
+      <div className='bg-white rounded-lg shadow overflow-hidden'>
+        <table className='min-w-full divide-y divide-gray-200'>
+          <thead className='bg-gray-50'>
+            <tr>
+              {[
+                'Product',
+                'Category',
+                'Cost Price',
+                'Current Price',
+                'Optimized Price',
+                'View Forecast',
+              ].map((h) => (
+                <th
+                  key={h}
+                  className='px-6 py-3 text-left text-sm font-medium text-gray-500'
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className='bg-white divide-y divide-gray-200'>
+            {products.map((p) => (
+              <tr key={p.id}>
+                <td className='px-6 py-4'>{p.name}</td>
+                <td className='px-6 py-4'>{p.category}</td>
+                <td className='px-6 py-4'>${p.cost_price}</td>
+                <td className='px-6 py-4'>${p.selling_price}</td>
+                <td className='px-6 py-4'>${p.optimized_price ?? '-'}</td>
+                <td className='px-6 py-4'>
+                  <button
+                    onClick={() => fetchDemandForecast(p.id)}
+                    className='text-blue-600 hover:text-blue-800'
                   >
                     Show Forecast
-                  </Button>
-                </TableCell>
-              </TableRow>
+                  </button>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </div>
 
       {chartData && selectedProduct && (
-        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-          <Typography variant='h6' gutterBottom>
+        <div className='mt-8 p-6 bg-white rounded-lg shadow'>
+          <h2 className='text-xl font-bold mb-4'>
             Demand Forecast for {selectedProduct.name}
-          </Typography>
-          <div style={{ height: '400px' }}>
+          </h2>
+          <div className='h-96'>
             <Line
               data={chartData}
               options={{
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                   legend: { position: 'top' },
-                  title: {
-                    display: true,
-                    text: 'Demand vs Price Relationship',
-                  },
+                  title: { display: true, text: 'Demand vs Price' },
                 },
                 scales: {
-                  x: {
-                    title: { display: true, text: 'Price' },
-                  },
-                  y: {
-                    title: { display: true, text: 'Demand' },
-                  },
+                  x: { title: { display: true, text: 'Price' } },
+                  y: { title: { display: true, text: 'Demand' } },
                 },
               }}
             />
           </div>
-        </Paper>
+        </div>
       )}
-    </Container>
+    </div>
   );
 };
 

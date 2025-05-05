@@ -2,7 +2,6 @@ import React from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community';
 
-
 const ProductGrid = ({ products, onEdit, onDelete }) => {
   const gridOptions = {
     defaultColDef: {
@@ -20,17 +19,26 @@ const ProductGrid = ({ products, onEdit, onDelete }) => {
     {
       headerName: 'Cost Price',
       field: 'cost_price',
-      valueFormatter: (params) => `$${params.value.toFixed(2)}`,
+      valueFormatter: (params) => {
+        const val = Number(params.value);
+        return isNaN(val) ? params.value : `$${val.toFixed(2)}`;
+      },
     },
     {
       headerName: 'Selling Price',
       field: 'selling_price',
-      valueFormatter: (params) => `$${params.value.toFixed(2)}`,
+      valueFormatter: (params) => {
+        const val = Number(params.value);
+        return isNaN(val) ? params.value : `$${val.toFixed(2)}`;
+      },
     },
     {
       headerName: 'Stock',
       field: 'stock_available',
-      valueFormatter: (params) => params.value.toLocaleString(),
+      valueFormatter: (params) => {
+        const val = Number(params.value);
+        return isNaN(val) ? params.value : val.toLocaleString();
+      },
     },
     {
       headerName: 'Actions',
@@ -38,39 +46,15 @@ const ProductGrid = ({ products, onEdit, onDelete }) => {
         <div className='flex gap-2'>
           <button
             onClick={() => onEdit(params.data)}
-            className='text-primary hover:text-primary-dark'
+            className='text-blue-600 hover:text-blue-800'
           >
-            <svg
-              className='w-5 h-5'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-              />
-            </svg>
+            Edit
           </button>
           <button
             onClick={() => onDelete(params.data.id)}
-            className='text-danger hover:text-danger-dark'
+            className='text-red-600 hover:text-red-800'
           >
-            <svg
-              className='w-5 h-5'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
-              />
-            </svg>
+            Delete
           </button>
         </div>
       ),
@@ -85,18 +69,9 @@ const ProductGrid = ({ products, onEdit, onDelete }) => {
         columnDefs={columnDefs}
         rowData={products}
         domLayout='autoHeight'
-        enableSorting={true}
-        enableFilter={true}
         pagination={true}
         paginationPageSize={10}
         suppressRowClickSelection={true}
-        // rowSelection='multiple' // Enable multi-row selection
-        // animateRows={true} // Row animation
-        // enableRangeSelection={true}
-        // enableCharts={true}
-        // sideBar={true} // Show side panel for columns
-        // suppressExcelExport={false}
-        // onGridReady={(params) => params.api.sizeColumnsToFit()}
       />
     </div>
   );
