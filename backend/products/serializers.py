@@ -39,7 +39,6 @@ class PriceOptimizationSerializer(serializers.Serializer):
     selling_price = serializers.DecimalField(max_digits=10, decimal_places=2)
     demand_forecast = serializers.IntegerField()
 
-
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
